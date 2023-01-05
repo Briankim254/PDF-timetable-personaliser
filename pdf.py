@@ -9,6 +9,17 @@ st.set_page_config(layout="wide",page_title="Timetable Personalizer",page_icon="
         'Report a bug': "mailto:bkimutai@kabarak.ac.ke",
         'About': "# This is baan *extremely* cool app!"
     },)
+
+# remove made with streamlit footer
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+
 with st.sidebar:
     selected = option_menu(
             menu_title = "Timetable Personalizer",#required
