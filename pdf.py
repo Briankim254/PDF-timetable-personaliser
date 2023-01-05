@@ -13,7 +13,7 @@ st.set_page_config(layout="wide",page_title="Timetable Personalizer",page_icon="
 # remove made with streamlit footer
 hide_streamlit_style = """
             <style>
-            #MainMenu {visibility: hidden;}
+            #MainMenu {visibility: visible;}
             footer {visibility: hidden;}
             </style>
             """
