@@ -40,13 +40,13 @@ if selected == "Lecture":
         st.session_state["lecture_success"]= True
         
 
-    st.title("Lecture Timetable Personalizer :star2:")
+    st.title("Lecture Timetable Personalizer :sparkles:")
 
 
     col01,col02 = st.columns([2,1])
     with col01:
         #allow the user to upload the pdf file then read it
-        lecture_file = st.file_uploader("Choose a PDF file", type="pdf", on_change= lecture_change_state, help="Upload the pdf file",)
+        lecture_file = st.file_uploader("Choose a lecture timetable PDF file", type="pdf", on_change= lecture_change_state, help="Upload the pdf file",)
 
 
     if st.session_state["upload"] == "done":
@@ -158,13 +158,13 @@ if selected == "Exam":
         st.session_state["exam_success"]= True
         
 
-    st.title("Exam Timetable Personalizer :star2:")
+    st.title("Exam Timetable Personalizer :dizzy:")
 
     col01,col02 = st.columns([2,1])
     with col01:
 
         #allow the user to upload the pdf file then read it
-        exam_file = st.file_uploader("Choose a PDF file", type="pdf", on_change= exam_change_state)
+        exam_file = st.file_uploader("Choose a exam timetable PDF file", type="pdf", on_change= exam_change_state)
 
 
     if st.session_state["exam_upload"] == "done":
@@ -259,5 +259,5 @@ if selected == "Exam":
             else:
                 pass
 
-if selected == "Exam":
-    pass
+if selected == "lecturer":
+    st.markdown('''## coming soon!:rocket:''')
