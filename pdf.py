@@ -274,4 +274,87 @@ if selected == "Exam":
                 pass
 
 if selected == "lecturer":
-    st.markdown("""# comming soon :rocket:""")
+
+    if "lecturer_upload" not in st.session_state:
+        st.session_state["lecturer_upload"]= "not done"
+        df = 0
+
+    def lecturer_change_state():
+        st.session_state["lecturer_upload"]="done"
+
+    st.title("Lecturer Timetable Personalizer :alien:")
+    complete_df = pd.DataFrame()
+    col001,col002 = st.columns([2,1])
+    with col001:
+
+        #allow the user to upload the pdf file then read it
+        lecturer_file = st.file_uploader(""" Choose a lecture timetable PDF file :star:""", type="pdf", on_change= lecturer_change_state)
+
+
+    if st.session_state["lecturer_upload"] == "done":
+        if lecturer_file is not None:
+                # Read the pdf file
+                df = read_pdf(lecturer_file, pages="all", multiple_tables=True,encoding='latin-1',lattice=True)
+                pages = len(df)
+
+
+
+                # # line seperator
+                # st.write("--------------------------------------------------------------")
+                #python dictionary to store the pages and the  value of the first col of each table in the pdf
+                # the key is the first coloumn name and the value is the page number of each table in the pdf
+                dict_1 = {}
+                for page in range(pages):
+                    tables = df[page]
+                    title =tables.columns[0]
+                    dict_1[page] = title
+                
+                col1,col2 = st.columns([1,4])
+                # with col1:
+                #     # create a selectbox to select the value of [0,1] of each table in the pdf
+                #     # the selectbox will display the cell value of [0,1] of each table in the pdf
+                #     # the selectbox will return the page number of the selected table
+                #     title = st.selectbox("which lecturer do you want?",list(dict.keys()))
+                #     page = dict[title]
+                    
+                    
+                
+                
+                for page in range(len(df)):
+
+                    table = df[page]
+
+                    # table data preprocessing
+                    col = table.iat[0,1]
+                    firstcol = table.columns
+                    table.drop(index=0,axis=1,inplace=True,)
+                    table1 = table.drop(columns=firstcol[0], axis=0)
+                    #drop the last row
+                    table1.drop(index=table1.index[-1],axis=0,inplace=True)
+
+                    # add a coloumn to the table with the value of the page number
+                    table1.insert(0,"Group",dict_1[page])
+
+                    # loop to rename the columns unnamed:0 to Lesson, unnamed:1 to Day, unnamed:2 to Subject, unnamed:3 to Room, unnamed:4 to Teacher in the table
+                    for col in table1.columns:
+                        if col == "Unnamed: 0":
+                            table1.rename(columns={"Unnamed: 0":"Lesson"}, inplace=True)
+                        elif col == "Unnamed: 1":
+                            table1.rename(columns={"Unnamed: 1":"Day"}, inplace=True)
+                        elif col == "Unnamed: 2":
+                            table1.rename(columns={"Unnamed: 2":"Subject"}, inplace=True)
+                        elif col == "Unnamed: 3":
+                            table1.rename(columns={"Unnamed: 3":"Room"}, inplace=True)
+                        elif col == "Unnamed: 4":
+                            table1.rename(columns={"Unnamed: 4":"Teacher"}, inplace=True)
+                        else:
+                            pass
+                    #concatenate the table1 with complete_df
+                    complete_df= pd.concat([complete_df,table1],ignore_index=True)
+                with col1:        
+                    teacher = st.selectbox("Select the Lecturer you want to see",list(complete_df["Teacher"].unique(),))
+                    #select the rows with the selected teacher
+                    teacher_df = complete_df[complete_df["Teacher"]==teacher]
+                    # show the table
+                with col2:
+                    st.dataframe(teacher_df,use_container_width=True)
