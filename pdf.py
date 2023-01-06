@@ -211,7 +211,8 @@ if selected == "Exam":
                 col = table.iat[0,1]
                 firstcol = table.columns
                 table.drop(index=0,axis=1,inplace=True,)
-                table1 = table.drop(columns=firstcol[0], axis=0)
+                table.drop(columns=firstcol[0], axis=0,inplace=True)
+                table1.drop(index=table1.index[-1],axis=0,inplace=True)
                 # loop to rename the columns unnamed:0 to group, unnamed:1 to week, unnamed:2 to day, unnamed:3 to unit, unnamed:4 to venue,unnamed:5 to teacher in the taable
                 for col in table1.columns:
                     if col == "Unnamed: 0":
@@ -271,4 +272,4 @@ if selected == "Exam":
                 pass
 
 if selected == "lecturer":
-    st.markdown('''## coming soon!:rocket:''')
+    st.markdown("""# comming soon :rocket:""")
