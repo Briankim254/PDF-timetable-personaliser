@@ -309,7 +309,7 @@ if selected == "lecturer":
                     title =tables.columns[0]
                     dict_1[page] = title
                 
-                col1,col2 = st.columns([1,4])
+                col1,col2 = st.columns([1,3])
                 # with col1:
                 #     # create a selectbox to select the value of [0,1] of each table in the pdf
                 #     # the selectbox will display the cell value of [0,1] of each table in the pdf
