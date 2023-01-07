@@ -3,3 +3,4 @@ streamlit-option-menu==0.3.2
 tabula-py==2.6.0
 pandas==1.5.2
 numpy==1.24.1
+csv2pdf==0.1.4
