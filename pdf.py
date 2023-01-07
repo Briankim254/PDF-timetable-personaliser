@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 from tabula import read_pdf
 import pandas as pd
+from csv2pdf import convert
 
 st.set_page_config(layout="wide",page_title="Timetable Personalizer",page_icon="random",initial_sidebar_state="expanded",
     menu_items={
@@ -260,7 +261,7 @@ if selected == "Exam":
             # line seperator
             st.write("--------------------------------------------------------------") 
         
-            st.session_state["download"] = st.download_button(
+            st.download_button(
                 label="Download CSV",
                 data=csv_exam,
                 file_name='Personalized exam_timetable.csv',
@@ -275,12 +276,18 @@ if selected == "Exam":
 
 if selected == "lecturer":
 
+    if "lecturer_success" not in st.session_state:
+        st.session_state["lecturer_success"]= False
+
     if "lecturer_upload" not in st.session_state:
         st.session_state["lecturer_upload"]= "not done"
         df = 0
 
     def lecturer_change_state():
         st.session_state["lecturer_upload"]="done"
+
+    def lecturer_success():
+        st.session_state["lecturer_success"]= True
 
     st.title("Lecturer Timetable Personalizer :alien:")
     complete_df = pd.DataFrame()
@@ -351,10 +358,54 @@ if selected == "lecturer":
                             pass
                     #concatenate the table1 with complete_df
                     complete_df= pd.concat([complete_df,table1],ignore_index=True)
+
+                # line seperator
+                st.write("--------------------------------------------------------------")
+
                 with col1:        
                     teacher = st.selectbox("Select the Lecturer you want to see",list(complete_df["Teacher"].unique(),))
                     #select the rows with the selected teacher
                     teacher_df = complete_df[complete_df["Teacher"]==teacher]
                     # show the table
                 with col2:
-                    st.dataframe(teacher_df,use_container_width=True)
+                    #reindex the table
+                    teacher_df.reset_index(drop=True,inplace=True)
+                st.dataframe(teacher_df,use_container_width=True)
+
+                # line seperator
+                st.write("--------------------------------------------------------------")
+
+                # dowmload the selected table
+                teacher_df.to_csv('lecturer.csv',index=False,)
+                csv_lecturer = teacher_df.to_csv(index=False,)
+                convert("lecturer.csv","sample.pdf")
+                
+                # download button to download the sample.pdf
+                with open("sample.pdf", "rb") as pdf_file:
+                    PDFbyte = pdf_file.read()
+
+                st.download_button(label="Export pdf",
+                    data=PDFbyte,
+                    file_name=teacher+"_timetable.pdf",
+                    mime='application/octet-stream',
+                    on_click=lecturer_success)
+
+
+                st.download_button(
+                    label="Export csv",
+                    data=csv_lecturer,
+                    file_name= teacher+'_timetable.csv',
+                    mime='text/csv',
+                    on_click=lecturer_success
+                )
+
+                
+                
+
+                if st.session_state["lecturer_success"]:
+                    st.success("succesfully downloaded summarzied table")
+                    st.session_state["lecturer_success"] = False
+                else:
+                    pass
+
+
