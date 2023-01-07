@@ -134,14 +134,30 @@ if selected == "Lecture":
 
             st.button("Clear",on_click=lecture_clear_selection)
             
-            # line seperator
-            st.write("--------------------------------------------------------------") 
-        
+             # line seperator
+            st.write("--------------------------------------------------------------")
+
+            # dowmload the selected table
+            st.session_state["selected_subjects_df1"].to_csv('lecture.csv',index=False,)
+            convert("lecture.csv","lecture.pdf")
+            
+            # download button to download the sample.pdf
+            with open("lecture.pdf", "rb") as pdf_file:
+                PDFbyte = pdf_file.read()
+
+            st.download_button(label="Export pdf",
+                data=PDFbyte,
+                file_name="Personalized lecture timetable.pdf",
+                mime='application/octet-stream',
+                on_click=lecture_success)
+
+
             st.download_button(
-                label="Download CSV",
+                label="Export CSV",
                 data=csv_lecture,
-                file_name='Personalized lecture_timetable.csv',
-                mime='text/csv',on_click=lecture_success
+                file_name='Personalized lecture timetable.csv',
+                mime='text/csv',
+                on_click=lecture_success
             )
 
             if st.session_state["lecture_success"]:
@@ -184,7 +200,7 @@ if selected == "Exam":
     if st.session_state["exam_upload"] == "done":
         if exam_file is not None:
             # Read the pdf file
-            df = read_pdf(exam_file, pages="all", multiple_tables=True,lattice=True)
+            df = read_pdf(exam_file, pages="all", multiple_tables=True,lattice=True,encoding='latin-1')
             pages = len(df)
             # line seperator
             st.write("--------------------------------------------------------------")
@@ -260,9 +276,23 @@ if selected == "Exam":
 
             # line seperator
             st.write("--------------------------------------------------------------") 
-        
+
+            st.session_state["selected_exams_df1"].to_csv('exam.csv',index=False,)
+            convert("exam.csv","exam.pdf")
+            
+            # download button to download the sample.pdf
+            with open("exam.pdf", "rb") as pdf_file:
+                PDFbyte = pdf_file.read()
+
+            st.download_button(label="Export pdf",
+                data=PDFbyte,
+                file_name="Personalized exam timetable.pdf",
+                mime='application/octet-stream',
+                on_click=exam_success)
+
+
             st.download_button(
-                label="Download CSV",
+                label="Export CSV",
                 data=csv_exam,
                 file_name='Personalized exam_timetable.csv',
                 mime='text/csv',on_click=exam_success
@@ -378,10 +408,10 @@ if selected == "lecturer":
                 # dowmload the selected table
                 teacher_df.to_csv('lecturer.csv',index=False,)
                 csv_lecturer = teacher_df.to_csv(index=False,)
-                convert("lecturer.csv","sample.pdf")
+                convert("lecturer.csv","lecturer.pdf")
                 
                 # download button to download the sample.pdf
-                with open("sample.pdf", "rb") as pdf_file:
+                with open("lecturer.pdf", "rb") as pdf_file:
                     PDFbyte = pdf_file.read()
 
                 st.download_button(label="Export pdf",
