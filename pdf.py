@@ -3,6 +3,8 @@ from streamlit_option_menu import option_menu
 from tabula import read_pdf
 import pandas as pd
 from csv2pdf import convert
+from st_aggrid import AgGrid, GridUpdateMode, ColumnsAutoSizeMode
+from st_aggrid.grid_options_builder import GridOptionsBuilder
 
 st.set_page_config(layout="wide", page_title="Timetable Personalizer", page_icon="random", initial_sidebar_state="expanded",
                    menu_items={
@@ -83,12 +85,18 @@ if selected == "Lecture":
                 # the selectbox will display the cell value of [0,1] of each table in the pdf
                 # the selectbox will return the page number of the selected table
                 title = st.selectbox(
-                    "which group do you want?", list(dict.keys()))
+                    "Select the course group to display", list(dict.keys()))
                 page = dict[title]
 
             with col2:
                 table = df[page]
                 st.write("page: ", page, ": ", table.columns[0])
+
+                st.subheader(
+                    "Choose the subjects you would like in your table")
+                st.write(""" :arrow_down:  click on the checkboxes below to select a row
+                            
+                            """)
 
                 # table data preprocessing
                 col = table.iat[0, 1]
@@ -97,7 +105,7 @@ if selected == "Lecture":
                 table1 = table.drop(columns=firstcol[0], axis=0)
                 # drop the last row
                 table1.drop(index=table1.index[-1], axis=0, inplace=True)
-                # loop to rename the columns unnamed:0 to Lesson, unnamed:1 to Day, unnamed:2 
+                # loop to rename the columns unnamed:0 to Lesson, unnamed:1 to Day, unnamed:2
                 # to Subject, unnamed:3 to Room, unnamed:4 to Teacher in the table
                 for col in table1.columns:
                     if col == "Unnamed: 0":
@@ -118,25 +126,30 @@ if selected == "Lecture":
                     else:
                         pass
 
-                st.dataframe(table1, use_container_width=True)
+                gd = GridOptionsBuilder.from_dataframe(table1)
+                gd.configure_default_column(groupable=True, editable=True)
+                gd.configure_pagination(enabled=True)
+                gd.configure_auto_height()
+                gd.configure_selection(use_checkbox=True, selection_mode='multiple',
+                                       header_checkbox=True, rowMultiSelectWithClick=True, )
+                options = gd.build()
+                grid_table = AgGrid(
+                    table1, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine',columns_auto_size_mode=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,)
+                sel_rows = grid_table["selected_rows"]
+
+                # get the selected rows in a dataframe without the colomns _selectedRowNodeInfo
+
+                selected_subjects_df = pd.DataFrame(sel_rows)
+                if selected_subjects_df.empty:
+                    pass
+                else:
+                    selected_subjects_df.drop(
+                        columns='_selectedRowNodeInfo', axis=1, inplace=True)
 
             # line seperator
             st.write(
                 "--------------------------------------------------------------")
 
-            # create a dropdown for selecting the list of items in the column Subject and saving the selected row,
-            #  in a list called selected_subjects
-            selected_subjects = st.multiselect(
-                "Select the subjects you want to see", table1["Subject"].unique())
-
-            # create a new dataframe called selected_subjects_df that contains the selected rows for multiplee tables
-            selected_subjects_df = table1[table1["Subject"].isin(
-                selected_subjects)]
-
-            # check if all the rows in the selected_subjects_df is already in st.session_state["selected_subjects_df1"]
-            check = selected_subjects_df[~selected_subjects_df.isin(
-                st.session_state["selected_subjects_df1"]).all(1)]
-            
             # save a concatinated dataframe of the selected_subjects_df1 and the selected_subjects_df to a session state variable
             st.session_state["selected_subjects_df1"] = pd.concat(
                 [st.session_state["selected_subjects_df1"], selected_subjects_df], ignore_index=True)
@@ -144,7 +157,7 @@ if selected == "Lecture":
             # drop duplicate rows in the selected_subjects_df1
             st.session_state["selected_subjects_df1"].drop_duplicates(
                 inplace=True)
-
+            st.subheader("Your selection:")
             # show the selected_subjects_df1 session state variable
             st.dataframe(
                 st.session_state["selected_subjects_df1"], use_container_width=True)
@@ -162,7 +175,10 @@ if selected == "Lecture":
             # dowmload the selected table
             st.session_state["selected_subjects_df1"].to_csv(
                 'lecture.csv', index=False,)
-            convert("lecture.csv", "lecture.pdf")
+            if st.session_state["selected_subjects_df1"].empty:
+                pass
+            else:
+                convert("lecture.csv", "lecture.pdf")
 
             # download button to download the sample.pdf
             with open("lecture.pdf", "rb") as pdf_file:
@@ -172,7 +188,8 @@ if selected == "Lecture":
                                data=PDFbyte,
                                file_name="Personalized lecture timetable.pdf",
                                mime='application/octet-stream',
-                               on_click=lecture_success)
+                               on_click=lecture_success
+            )
 
             st.download_button(
                 label="Export CSV",
@@ -443,7 +460,7 @@ if selected == "lecturer":
             with col2:
                 # reindex the table
                 teacher_df.reset_index(drop=True, inplace=True)
-            
+
             # show the table
             st.dataframe(teacher_df, use_container_width=True)
 
