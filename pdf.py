@@ -134,7 +134,7 @@ if selected == "Lecture":
                                        header_checkbox=True, rowMultiSelectWithClick=True, )
                 options = gd.build()
                 grid_table = AgGrid(
-                    table1, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine',columns_auto_size_mode=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,)
+                    table1, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine',columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
                 sel_rows = grid_table["selected_rows"]
 
                 # get the selected rows in a dataframe without the colomns _selectedRowNodeInfo
