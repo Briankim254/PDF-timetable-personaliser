@@ -54,7 +54,7 @@ if selected == "Lecture":
     def lecture_success():
         st.session_state["lecture_success"] = True
 
-    st.title("Lecture Timetable Personalizer :sparkles:")
+    st.title("Lecture Timetable Personalizer :date:")
 
     col01, col02 = st.columns([2, 1])
     with col01:
@@ -94,7 +94,7 @@ if selected == "Lecture":
 
                 st.subheader(
                     "Choose the subjects you would like in your table")
-                st.write(""" :arrow_down:  click on the checkboxes below to select a row
+                st.write(""" :arrow_heading_down:  click on the checkboxes below to select a row
                             
                             """)
 
@@ -226,7 +226,7 @@ if selected == "Exam":
     def exam_success():
         st.session_state["exam_success"] = True
 
-    st.title("Exam Timetable Personalizer :dizzy:")
+    st.title("Exam Timetable Personalizer :pencil:")
 
     col01, col02 = st.columns([2, 1])
     with col01:
@@ -374,14 +374,14 @@ if selected == "lecturer":
     def lecturer_success():
         st.session_state["lecturer_success"] = True
 
-    st.title("Lecturer Timetable Personalizer :alien:")
+    st.title("Lecturer Timetable Personalizer :briefcase:")
     complete_df = pd.DataFrame()
     col001, col002 = st.columns([2, 1])
     with col001:
 
         # allow the user to upload the pdf file then read it
         lecturer_file = st.file_uploader(
-            """ Choose a lecture timetable PDF file :star:""", type="pdf", on_change=lecturer_change_state)
+            """ Choose a lecture timetable PDF file """, type="pdf", on_change=lecturer_change_state)
 
     if st.session_state["lecturer_upload"] == "done":
         if lecturer_file is not None:
