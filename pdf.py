@@ -92,59 +92,59 @@ if selected == "Lecture":
                 table = df[page]
                 st.write("page: ", page, ": ", table.columns[0])
 
-                st.subheader(
-                    "Choose the subjects you would like in your table")
-                st.write(""" :arrow_heading_down:  click on the checkboxes below to select a row
-                            
-                            """)
+            st.subheader(
+                "Choose the subjects you would like in your table")
+            st.write(""" :arrow_heading_down:  click on the checkboxes below to select a row
+                        
+                        """)
 
-                # table data preprocessing
-                col = table.iat[0, 1]
-                firstcol = table.columns
-                table.drop(index=0, axis=1, inplace=True,)
-                table1 = table.drop(columns=firstcol[0], axis=0)
-                # drop the last row
-                table1.drop(index=table1.index[-1], axis=0, inplace=True)
-                # loop to rename the columns unnamed:0 to Lesson, unnamed:1 to Day, unnamed:2
-                # to Subject, unnamed:3 to Room, unnamed:4 to Teacher in the table
-                for col in table1.columns:
-                    if col == "Unnamed: 0":
-                        table1.rename(
-                            columns={"Unnamed: 0": "Lesson"}, inplace=True)
-                    elif col == "Unnamed: 1":
-                        table1.rename(
-                            columns={"Unnamed: 1": "Day"}, inplace=True)
-                    elif col == "Unnamed: 2":
-                        table1.rename(
-                            columns={"Unnamed: 2": "Subject"}, inplace=True)
-                    elif col == "Unnamed: 3":
-                        table1.rename(
-                            columns={"Unnamed: 3": "Room"}, inplace=True)
-                    elif col == "Unnamed: 4":
-                        table1.rename(
-                            columns={"Unnamed: 4": "Teacher"}, inplace=True)
-                    else:
-                        pass
-
-                gd = GridOptionsBuilder.from_dataframe(table1)
-                gd.configure_default_column(groupable=True, editable=True)
-                gd.configure_pagination(enabled=True)
-                gd.configure_auto_height()
-                gd.configure_selection(use_checkbox=True, selection_mode='multiple',
-                                       header_checkbox=True, rowMultiSelectWithClick=True, )
-                options = gd.build()
-                grid_table = AgGrid(
-                    table1, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine',columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
-                sel_rows = grid_table["selected_rows"]
-
-                # get the selected rows in a dataframe without the colomns _selectedRowNodeInfo
-
-                selected_subjects_df = pd.DataFrame(sel_rows)
-                if selected_subjects_df.empty:
-                    pass
+            # table data preprocessing
+            col = table.iat[0, 1]
+            firstcol = table.columns
+            table.drop(index=0, axis=1, inplace=True,)
+            table1 = table.drop(columns=firstcol[0], axis=0)
+            # drop the last row
+            table1.drop(index=table1.index[-1], axis=0, inplace=True)
+            # loop to rename the columns unnamed:0 to Lesson, unnamed:1 to Day, unnamed:2
+            # to Subject, unnamed:3 to Room, unnamed:4 to Teacher in the table
+            for col in table1.columns:
+                if col == "Unnamed: 0":
+                    table1.rename(
+                        columns={"Unnamed: 0": "Lesson"}, inplace=True)
+                elif col == "Unnamed: 1":
+                    table1.rename(
+                        columns={"Unnamed: 1": "Day"}, inplace=True)
+                elif col == "Unnamed: 2":
+                    table1.rename(
+                        columns={"Unnamed: 2": "Subject"}, inplace=True)
+                elif col == "Unnamed: 3":
+                    table1.rename(
+                        columns={"Unnamed: 3": "Room"}, inplace=True)
+                elif col == "Unnamed: 4":
+                    table1.rename(
+                        columns={"Unnamed: 4": "Teacher"}, inplace=True)
                 else:
-                    selected_subjects_df.drop(
-                        columns='_selectedRowNodeInfo', axis=1, inplace=True)
+                    pass
+
+            gd = GridOptionsBuilder.from_dataframe(table1)
+            gd.configure_default_column(groupable=True, editable=True)
+            gd.configure_pagination(enabled=True)
+            gd.configure_auto_height()
+            gd.configure_selection(use_checkbox=True, selection_mode='multiple',
+                                    header_checkbox=True, rowMultiSelectWithClick=True, )
+            options = gd.build()
+            grid_table = AgGrid(
+                table1, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine',columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
+            sel_rows = grid_table["selected_rows"]
+
+            # get the selected rows in a dataframe without the colomns _selectedRowNodeInfo
+
+            selected_subjects_df = pd.DataFrame(sel_rows)
+            if selected_subjects_df.empty:
+                pass
+            else:
+                selected_subjects_df.drop(
+                    columns='_selectedRowNodeInfo', axis=1, inplace=True)
 
             # line seperator
             st.write(
