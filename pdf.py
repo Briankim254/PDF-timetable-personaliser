@@ -65,7 +65,7 @@ if selected == "Lecture":
     if st.session_state["upload"] == "done":
         # Read the pdf file
         if lecture_file is not None:
-            df = read_pdf(lecture_file, pages="all",
+            df = read_pdf(lecture_file,  pages="all",
                           multiple_tables=True, encoding='latin-1', lattice=True)
             pages = len(df)
             # line seperator
@@ -76,9 +76,8 @@ if selected == "Lecture":
             dict = {}
             for page in range(pages):
                 tables = df[page]
-                title = tables.columns[0]
+                title = tables["Group"].iat[0]
                 dict[title] = page
-
             col1, col2 = st.columns([1, 3])
             with col1:
                 # create a selectbox to select the value of [0,1] of each table in the pdf
@@ -95,13 +94,12 @@ if selected == "Lecture":
             st.subheader(
                 "Choose the subjects you would like in your table")
             st.write(""" :arrow_heading_down:  click on the checkboxes below to select a row
-                        
                         """)
 
             # table data preprocessing
             col = table.iat[0, 1]
             firstcol = table.columns
-            table.drop(index=0, axis=1, inplace=True,)
+            # table.drop(index=0, axis=1, inplace=True,)
             table1 = table.drop(columns=firstcol[0], axis=0)
             # drop the last row
             table1.drop(index=table1.index[-1], axis=0, inplace=True)
@@ -128,13 +126,13 @@ if selected == "Lecture":
 
             gd = GridOptionsBuilder.from_dataframe(table1)
             gd.configure_default_column(groupable=True, editable=True)
-            gd.configure_pagination(enabled=True)
-            gd.configure_auto_height()
+            gd.configure_pagination(enabled=True, paginationPageSize=10)
+            gd.configure_auto_height(autoHeight=True)
             gd.configure_selection(use_checkbox=True, selection_mode='multiple',
-                                    header_checkbox=True, rowMultiSelectWithClick=True, )
+                                   header_checkbox=True, rowMultiSelectWithClick=True, )
             options = gd.build()
             grid_table = AgGrid(
-                table1, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine',columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
+                table1, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine', columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
             sel_rows = grid_table["selected_rows"]
 
             # get the selected rows in a dataframe without the colomns _selectedRowNodeInfo
@@ -189,7 +187,7 @@ if selected == "Lecture":
                                file_name="Personalized lecture timetable.pdf",
                                mime='application/octet-stream',
                                on_click=lecture_success
-            )
+                               )
 
             st.download_button(
                 label="Export CSV",
