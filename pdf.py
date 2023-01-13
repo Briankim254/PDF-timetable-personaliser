@@ -38,7 +38,7 @@ if selected == "Lecture":
     if "upload" not in st.session_state:
         st.session_state["upload"] = "not done"
         df = 0
-
+        
     if "selected_subjects_df1" not in st.session_state:
         st.session_state["selected_subjects_df1"] = pd.DataFrame()
 
@@ -61,7 +61,8 @@ if selected == "Lecture":
         # allow the user to upload the pdf file then read it
         lecture_file = st.file_uploader("Choose a lecture timetable PDF file",
                                         type="pdf", on_change=lecture_change_state, help="Upload the pdf file",)
-
+    complete_lec_df = pd.DataFrame()
+  
     if st.session_state["upload"] == "done":
         # Read the pdf file
         if lecture_file is not None:
@@ -78,19 +79,22 @@ if selected == "Lecture":
                 tables = df[page]
                 title = tables["Group"].iat[0]
                 dict[title] = page
+                # concatenate the table1 with complete_df
+                complete_lec_df = pd.concat(
+                    [complete_lec_df, tables], ignore_index=True)
+                
             col1, col2 = st.columns([1, 3])
             with col1:
                 # create a selectbox to select the value of [0,1] of each table in the pdf
                 # the selectbox will display the cell value of [0,1] of each table in the pdf
                 # the selectbox will return the page number of the selected table
-                title = st.selectbox(
-                    "Select the course group to display", list(dict.keys()))
-                page = dict[title]
+                    title = st.selectbox(
+                        "Select the course group to display", list(dict.keys()))
+                    page = dict[title]
 
             with col2:
                 table = df[page]
-                st.write("page: ", page, ": ", table.columns[0])
-
+                st.write("page: ", page, ": ", table["Group"].iat[0])
             st.subheader(
                 "Choose the subjects you would like in your table")
             st.write(""" :arrow_heading_down:  click on the checkboxes below to select a row
@@ -132,7 +136,7 @@ if selected == "Lecture":
                                    header_checkbox=True, rowMultiSelectWithClick=True, )
             options = gd.build()
             grid_table = AgGrid(
-                table1, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine', columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
+                    table1, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine', columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
             sel_rows = grid_table["selected_rows"]
 
             # get the selected rows in a dataframe without the colomns _selectedRowNodeInfo
@@ -176,7 +180,7 @@ if selected == "Lecture":
             if st.session_state["selected_subjects_df1"].empty:
                 pass
             else:
-                convert("lecture.csv", "lecture.pdf")
+                convert("lecture.csv", "lecture.pdf",orientation= "L",size=16)
 
             # download button to download the sample.pdf
             with open("lecture.pdf", "rb") as pdf_file:
@@ -332,7 +336,7 @@ if selected == "Exam":
 
             st.session_state["selected_exams_df1"].to_csv(
                 'exam.csv', index=False,)
-            convert("exam.csv", "exam.pdf")
+            convert("exam.csv", "exam.pdf",orientation= "L",size=14)
 
             # download button to download the sample.pdf
             with open("exam.pdf", "rb") as pdf_file:
@@ -395,7 +399,7 @@ if selected == "lecturer":
             dict_1 = {}
             for page in range(pages):
                 tables = df[page]
-                title = tables.columns[0]
+                title = tables["Group"].iat[0]
                 dict_1[page] = title
 
             col1, col2 = st.columns([1, 3])
@@ -413,13 +417,13 @@ if selected == "lecturer":
                 # table data preprocessing
                 col = table.iat[0, 1]
                 firstcol = table.columns
-                table.drop(index=0, axis=1, inplace=True,)
+                # table.drop(index=0, axis=1, inplace=True,)
                 table1 = table.drop(columns=firstcol[0], axis=0)
                 # drop the last row
                 table1.drop(index=table1.index[-1], axis=0, inplace=True)
 
                 # add a coloumn to the table with the value of the page number
-                table1.insert(0, "Group", dict_1[page])
+                # table1.insert(0, "Group", dict_1[page])
 
                 # loop to rename the columns unnamed:0 to Lesson, unnamed:1 to Day, unnamed:2 to Subject,
                 #  unnamed:3 to Room, unnamed:4 to Teacher in the table
@@ -450,8 +454,9 @@ if selected == "lecturer":
                 "--------------------------------------------------------------")
 
             with col1:
+                #exept Nan values
                 teacher = st.selectbox("Select the Lecturer you want to see", list(
-                    complete_df["Teacher"].unique(),))
+                    complete_df["Teacher"].unique().nonzero()),index=1)
                 # select the rows with the selected teacher
                 teacher_df = complete_df[complete_df["Teacher"] == teacher]
                 # show the table
@@ -469,7 +474,7 @@ if selected == "lecturer":
             # dowmload the selected table
             teacher_df.to_csv('lecturer.csv', index=False,)
             csv_lecturer = teacher_df.to_csv(index=False,)
-            convert("lecturer.csv", "lecturer.pdf")
+            convert("lecturer.csv", "lecturer.pdf",orientation= "L",size=16)
 
             # download button to download the sample.pdf
             with open("lecturer.pdf", "rb") as pdf_file:
