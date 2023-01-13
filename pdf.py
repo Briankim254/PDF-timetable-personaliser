@@ -456,7 +456,7 @@ if selected == "lecturer":
             with col1:
                 #exept Nan values
                 teacher = st.selectbox("Select the Lecturer you want to see", list(
-                    complete_df["Teacher"].unique().nonzero()),index=1)
+                    complete_df["Teacher"].unique()),index=1)
                 # select the rows with the selected teacher
                 teacher_df = complete_df[complete_df["Teacher"] == teacher]
                 # show the table
