@@ -164,6 +164,7 @@ if selected == "Lecture":
             st.dataframe(
                 st.session_state["selected_subjects_df1"], use_container_width=True)
 
+           
             # save the selected_exams_df1 to a new csv file and propose the download button to the user
             csv_lecture = st.session_state["selected_subjects_df1"].to_csv(
                 index=False)
@@ -467,6 +468,16 @@ if selected == "lecturer":
             # show the table
             st.dataframe(teacher_df, use_container_width=True)
 
+             # line seperator
+            # horizontal bar graph of the selected_subjects_df1 session state variable columns subject against the day column and have the y axis to display the name of the subject
+            st.write("--------------------------------------------------------------")
+            st.write("Lecturer Timetable")
+            st.bar_chart(teacher_df["Day"].value_counts(), use_container_width=True)
+
+
+
+
+
             # line seperator
             st.write(
                 "--------------------------------------------------------------")
@@ -499,3 +510,4 @@ if selected == "lecturer":
                 st.session_state["lecturer_success"] = False
             else:
                 pass
+
