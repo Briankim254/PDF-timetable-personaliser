@@ -466,12 +466,13 @@ if selected == "lecturer":
                 teacher_df.reset_index(drop=True, inplace=True)
 
             # show the table
+            st.subheader("Your Lecture Timetable")
             st.dataframe(teacher_df, use_container_width=True)
 
              # line seperator
             # horizontal bar graph of the selected_subjects_df1 session state variable columns subject against the day column and have the y axis to display the name of the subject
             st.write("--------------------------------------------------------------")
-            st.write("Lecturer Timetable")
+            st.subheader("Lecturer Timetable")
             st.bar_chart(teacher_df["Day"].value_counts(), use_container_width=True)
 
 
