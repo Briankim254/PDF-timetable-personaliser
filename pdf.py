@@ -475,7 +475,7 @@ if selected == "lecturer":
                                    header_checkbox=True, rowMultiSelectWithClick=True, )
             options = gd.build()
             grid_table = AgGrid(
-                    teacher_df, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine', columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
+                    teacher_df, gridOptions=options, update_mode=GridUpdateMode.VALUE_CHANGED, theme='alpine', columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
             #pass the table to the varible final_table even when edited
             edited_rows = grid_table["data"]
 
