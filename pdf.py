@@ -181,7 +181,7 @@ if selected == "Lecture":
             if st.session_state["selected_subjects_df1"].empty:
                 pass
             else:
-                convert("lecture.csv", "lecture.pdf",orientation= "L",size=16)
+                convert("lecture.csv", "lecture.pdf",orientation= "L")
 
             # download button to download the sample.pdf
             with open("lecture.pdf", "rb") as pdf_file:
@@ -337,7 +337,7 @@ if selected == "Exam":
 
             st.session_state["selected_exams_df1"].to_csv(
                 'exam.csv', index=False,)
-            convert("exam.csv", "exam.pdf",orientation= "L",size=14)
+            convert("exam.csv", "exam.pdf",orientation= "L")
 
             # download button to download the sample.pdf
             with open("exam.pdf", "rb") as pdf_file:
@@ -467,14 +467,24 @@ if selected == "lecturer":
 
             # show the table
             st.subheader("Your Lecture Timetable")
-            st.dataframe(teacher_df, use_container_width=True)
+            gd = GridOptionsBuilder.from_dataframe(table1)
+            gd.configure_default_column(groupable=True, editable=True)
+            gd.configure_pagination(enabled=False, paginationPageSize=10)
+            gd.configure_auto_height(autoHeight=True)
+            gd.configure_selection(use_checkbox=False, selection_mode='disabled',
+                                   header_checkbox=True, rowMultiSelectWithClick=True, )
+            options = gd.build()
+            grid_table = AgGrid(
+                    teacher_df, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine', columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
+            #pass the table to the varible final_table even when edited
+            edited_rows = grid_table["data"]
 
+            # get the selected rows in a dataframe without the colomns _selectedRowNodeInfo
+
+            selected_lecturer_df = pd.DataFrame(edited_rows)
             
-            # horizontal bar graph of the selected_subjects_df1 session state variable columns subject against the day column and have the y axis to display the name of the subject
-            st.bar_chart(teacher_df["Day"].value_counts(), use_container_width=True)
-
-
-
+            # horizontal bar graph of the selected_subjects_df1 session state variable columns subject against the day column and have the y axis to display the name of the subject and show the axis labels
+            st.bar_chart(selected_lecturer_df["Day"].value_counts(), use_container_width=True)
 
 
             # line seperator
@@ -482,9 +492,9 @@ if selected == "lecturer":
                 "--------------------------------------------------------------")
 
             # dowmload the selected table
-            teacher_df.to_csv('lecturer.csv', index=False,)
-            csv_lecturer = teacher_df.to_csv(index=False,)
-            convert("lecturer.csv", "lecturer.pdf",orientation= "L",size=16)
+            selected_lecturer_df.to_csv('lecturer.csv', index=False,)
+            csv_lecturer = selected_lecturer_df.to_csv(index=False,)
+            convert("lecturer.csv", "lecturer.pdf",orientation= "L")
 
             # download button to download the sample.pdf
             with open("lecturer.pdf", "rb") as pdf_file:
