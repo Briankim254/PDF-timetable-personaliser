@@ -5,7 +5,7 @@ import pandas as pd
 from csv2pdf import convert
 from st_aggrid import AgGrid, GridUpdateMode, ColumnsAutoSizeMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
-
+import plotly.express as px
 st.set_page_config(layout="wide", page_title="Timetable Personalizer", page_icon="random", initial_sidebar_state="expanded",
                    menu_items={
                        'Get Help': 'mailto:bkimutai@kabarak.ac.ke',
@@ -164,7 +164,12 @@ if selected == "Lecture":
             st.dataframe(
                 st.session_state["selected_subjects_df1"], use_container_width=True)
 
-           
+            #plotly bar chart of the selected_subjects_df1 session state variable to show the day on the x axis and the lesson on the y axis and subject as the color
+            
+            fig = px.bar(st.session_state["selected_subjects_df1"], x="Day", y="Lesson", color="Subject")
+            st.plotly_chart(fig)         
+
+
             # save the selected_exams_df1 to a new csv file and propose the download button to the user
             csv_lecture = st.session_state["selected_subjects_df1"].to_csv(
                 index=False)
