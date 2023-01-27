@@ -476,6 +476,7 @@ if selected == "lecturer":
             options = gd.build()
             grid_table = AgGrid(
                     teacher_df, gridOptions=options, update_mode=GridUpdateMode.VALUE_CHANGED, theme='alpine', columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
+            
             #pass the table to the varible final_table even when edited
             edited_rows = grid_table["data"]
 
@@ -483,9 +484,22 @@ if selected == "lecturer":
 
             selected_lecturer_df = pd.DataFrame(edited_rows)
             
-            # horizontal bar graph of the selected_subjects_df1 session state variable columns subject against the day column and have the y axis to display the name of the subject and show the axis labels
-            st.bar_chart(selected_lecturer_df["Day"].value_counts(), use_container_width=True)
-
+            #To represent the days of the week and the time of day, you can use the x-axis to display the days of the week and the y-axis to display the time of day. To represent the lessons that are happening at specific times, you can use different colors or markers to indicate the different classes or subjects in a bar graph
+            # st.subheader("Your Lecture Timetable")
+            import plotly.express as px
+            fig = px.bar(teacher_df, x="Day", y="Lesson", color="Subject",
+                            orientation='v', )
+            fig.update_layout(
+                title="Your Lecture Timetable Graph",
+                xaxis_title="Day",
+                yaxis_title="Subject",
+                font=dict(
+                    family="Courier New, monospace",
+                    size=18,
+                    color="RebeccaPurple"
+                )
+            )
+            st.plotly_chart(fig)
 
             # line seperator
             st.write(
@@ -494,7 +508,7 @@ if selected == "lecturer":
             # dowmload the selected table
             selected_lecturer_df.to_csv('lecturer.csv', index=False,)
             csv_lecturer = selected_lecturer_df.to_csv(index=False,)
-            convert("lecturer.csv", "lecturer.pdf",orientation= "L")
+            convert("lecturer.csv", "lecturer.pdf",orientation= "L",)
 
             # download button to download the sample.pdf
             with open("lecturer.pdf", "rb") as pdf_file:
