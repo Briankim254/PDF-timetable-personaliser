@@ -164,11 +164,7 @@ if selected == "Lecture":
             st.dataframe(
                 st.session_state["selected_subjects_df1"], use_container_width=True)
 
-            #plotly bar chart of the selected_subjects_df1 session state variable to show the day on the x axis and the lesson on the y axis and subject as the color
             
-            fig = px.bar(st.session_state["selected_subjects_df1"], x="Day", y="Lesson", color="Subject")
-            st.plotly_chart(fig)         
-
 
             # save the selected_exams_df1 to a new csv file and propose the download button to the user
             csv_lecture = st.session_state["selected_subjects_df1"].to_csv(
@@ -187,6 +183,10 @@ if selected == "Lecture":
                 pass
             else:
                 convert("lecture.csv", "lecture.pdf",orientation= "L")
+                
+                #plotly bar chart of the selected_subjects_df1 session state variable to show the day on the x axis and the lesson on the y axis and subject as the color
+                fig = px.bar(st.session_state["selected_subjects_df1"], x="Day", y="Lesson", color="Subject")
+                st.plotly_chart(fig)         
 
             # download button to download the sample.pdf
             with open("lecture.pdf", "rb") as pdf_file:
