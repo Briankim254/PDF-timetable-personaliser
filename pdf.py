@@ -67,7 +67,7 @@ if selected == "Lecture":
         # Read the pdf file
         if lecture_file is not None:
             df = read_pdf(lecture_file,  pages="all",
-                          multiple_tables=True, encoding='latin-1', lattice=True)
+                          multiple_tables=True, encoding='Ansi', lattice=True)
             pages = len(df)
             # line seperator
             st.write(
@@ -182,6 +182,7 @@ if selected == "Lecture":
             if st.session_state["selected_subjects_df1"].empty:
                 pass
             else:
+                # convert the csv file to pdf
                 convert("lecture.csv", "lecture.pdf",orientation= "L")
                 
                 #plotly bar chart of the selected_subjects_df1 session state variable to show the day on the x axis and the lesson on the y axis and subject as the color
@@ -395,7 +396,7 @@ if selected == "lecturer":
         if lecturer_file is not None:
             # Read the pdf file
             df = read_pdf(lecturer_file, pages="all",
-                          multiple_tables=True, encoding='latin-1', lattice=True)
+                          multiple_tables=True, encoding='Ansi', lattice=True)
             pages = len(df)
 
             # # line seperator
