@@ -6,6 +6,8 @@ from csv2pdf import convert
 from st_aggrid import AgGrid, GridUpdateMode, ColumnsAutoSizeMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 import plotly.express as px
+import os
+
 st.set_page_config(layout="wide", page_title="Timetable Personalizer", page_icon="random", initial_sidebar_state="expanded",
                    menu_items={
                        'Get Help': 'mailto:bkimutai@kabarak.ac.ke',
@@ -183,12 +185,17 @@ if selected == "Lecture":
                 pass
             else:
                 # convert the csv file to pdf
-                convert("lecture.csv", "lecture.pdf",orientation= "L")
+                convert("lecture.csv", "lecture.pdf")
                 
                 #plotly bar chart of the selected_subjects_df1 session state variable to show the day on the x axis and the lesson on the y axis and subject as the color
                 fig = px.bar(st.session_state["selected_subjects_df1"], x="Day", y="Lesson", color="Subject")
                 st.plotly_chart(fig)         
 
+            #create a blank pdf file named lecture.pdf if it does not exist
+                with open("lecture.pdf", "wb") as pdf_file:
+                    pass
+
+            
             # download button to download the sample.pdf
             with open("lecture.pdf", "rb") as pdf_file:
                 PDFbyte = pdf_file.read()
@@ -343,7 +350,7 @@ if selected == "Exam":
 
             st.session_state["selected_exams_df1"].to_csv(
                 'exam.csv', index=False,)
-            convert("exam.csv", "exam.pdf",orientation= "L")
+            convert("exam.csv", "exam.pdf")
 
             # download button to download the sample.pdf
             with open("exam.pdf", "rb") as pdf_file:
@@ -396,7 +403,7 @@ if selected == "lecturer":
         if lecturer_file is not None:
             # Read the pdf file
             df = read_pdf(lecturer_file, pages="all",
-                          multiple_tables=True, encoding='Ansi', lattice=True)
+                          multiple_tables=True, encoding='cp1252', lattice=True)
             pages = len(df)
 
             # # line seperator
@@ -514,7 +521,7 @@ if selected == "lecturer":
             # dowmload the selected table
             selected_lecturer_df.to_csv('lecturer.csv', index=False,)
             csv_lecturer = selected_lecturer_df.to_csv(index=False,)
-            convert("lecturer.csv", "lecturer.pdf",orientation= "L",)
+            convert("lecturer.csv", "lecturer.pdf")
 
             # download button to download the sample.pdf
             with open("lecturer.pdf", "rb") as pdf_file:
