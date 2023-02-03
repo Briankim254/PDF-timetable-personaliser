@@ -7,6 +7,7 @@ from st_aggrid import AgGrid, GridUpdateMode, ColumnsAutoSizeMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 import plotly.express as px
 import os
+import streamlit_authenticator as stauth
 
 st.set_page_config(layout="wide", page_title="Timetable Personalizer", page_icon="random", initial_sidebar_state="expanded",
                    menu_items={
@@ -192,8 +193,9 @@ if selected == "Lecture":
                 st.plotly_chart(fig)         
 
             #create a blank pdf file named lecture.pdf if it does not exist
-            with open("lecture.pdf", "wb") as pdf_file:
-                pass
+            if not os.path.exists("lecture.pdf"):
+                open("lecture.pdf", "w").close()
+                
 
             
             # download button to download the sample.pdf
