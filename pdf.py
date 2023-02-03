@@ -192,8 +192,8 @@ if selected == "Lecture":
                 st.plotly_chart(fig)         
 
             #create a blank pdf file named lecture.pdf if it does not exist
-                with open("lecture.pdf", "wb") as pdf_file:
-                    pass
+            with open("lecture.pdf", "wb") as pdf_file:
+                pass
 
             
             # download button to download the sample.pdf
