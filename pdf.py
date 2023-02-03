@@ -67,7 +67,7 @@ if selected == "Lecture":
         # Read the pdf file
         if lecture_file is not None:
             df = read_pdf(lecture_file,  pages="all",
-                          multiple_tables=True, encoding='Ansi', lattice=True)
+                          multiple_tables=True, encoding='cp1252', lattice=True)
             pages = len(df)
             # line seperator
             st.write(
