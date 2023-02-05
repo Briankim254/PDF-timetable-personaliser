@@ -185,7 +185,7 @@ if selected == "Lecture":
             else:
                 # convert the csv file to pdf
                 convert("lecture.csv", "lecture.pdf", font=os.path.join(
-                    os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"),)
+                    os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"),size=5)
 
                 # plotly bar chart of the selected_subjects_df1 session state variable to show the day on the x axis and the lesson on the y axis and subject as the color
                 fig = px.bar(
