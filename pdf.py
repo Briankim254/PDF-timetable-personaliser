@@ -41,7 +41,7 @@ if selected == "Lecture":
     if "upload" not in st.session_state:
         st.session_state["upload"] = "not done"
         df = 0
-        
+
     if "selected_subjects_df1" not in st.session_state:
         st.session_state["selected_subjects_df1"] = pd.DataFrame()
 
@@ -65,12 +65,12 @@ if selected == "Lecture":
         lecture_file = st.file_uploader("Choose a lecture timetable PDF file",
                                         type="pdf", on_change=lecture_change_state, help="Upload the pdf file",)
     complete_lec_df = pd.DataFrame()
-  
+
     if st.session_state["upload"] == "done":
         # Read the pdf file
         if lecture_file is not None:
             df = read_pdf(lecture_file,  pages="all",
-                          multiple_tables=True, encoding='cp1252', lattice=True)
+                          multiple_tables=True, encoding='latin-1', lattice=True)
             pages = len(df)
             # line seperator
             st.write(
@@ -85,15 +85,15 @@ if selected == "Lecture":
                 # concatenate the table1 with complete_df
                 complete_lec_df = pd.concat(
                     [complete_lec_df, tables], ignore_index=True)
-                
+
             col1, col2 = st.columns([1, 3])
             with col1:
                 # create a selectbox to select the value of [0,1] of each table in the pdf
                 # the selectbox will display the cell value of [0,1] of each table in the pdf
                 # the selectbox will return the page number of the selected table
-                    title = st.selectbox(
-                        "Select the course group to display", list(dict.keys()))
-                    page = dict[title]
+                title = st.selectbox(
+                    "Select the course group to display", list(dict.keys()))
+                page = dict[title]
 
             with col2:
                 table = df[page]
@@ -139,7 +139,7 @@ if selected == "Lecture":
                                    header_checkbox=True, rowMultiSelectWithClick=True, )
             options = gd.build()
             grid_table = AgGrid(
-                    table1, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine', columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
+                table1, gridOptions=options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme='alpine', columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
             sel_rows = grid_table["selected_rows"]
 
             # get the selected rows in a dataframe without the colomns _selectedRowNodeInfo
@@ -167,8 +167,6 @@ if selected == "Lecture":
             st.dataframe(
                 st.session_state["selected_subjects_df1"], use_container_width=True)
 
-            
-
             # save the selected_exams_df1 to a new csv file and propose the download button to the user
             csv_lecture = st.session_state["selected_subjects_df1"].to_csv(
                 index=False)
@@ -186,18 +184,18 @@ if selected == "Lecture":
                 pass
             else:
                 # convert the csv file to pdf
-                convert("lecture.csv", "lecture.pdf")
-                
-                #plotly bar chart of the selected_subjects_df1 session state variable to show the day on the x axis and the lesson on the y axis and subject as the color
-                fig = px.bar(st.session_state["selected_subjects_df1"], x="Day", y="Lesson", color="Subject")
-                st.plotly_chart(fig)         
+                convert("lecture.csv", "lecture.pdf", font=os.path.join(
+                    os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"))
 
-            #create a blank pdf file named lecture.pdf if it does not exist
+                # plotly bar chart of the selected_subjects_df1 session state variable to show the day on the x axis and the lesson on the y axis and subject as the color
+                fig = px.bar(
+                    st.session_state["selected_subjects_df1"], x="Day", y="Lesson", color="Subject")
+                st.plotly_chart(fig)
+
+            # create a blank pdf file named lecture.pdf if it does not exist
             if not os.path.exists("lecture.pdf"):
                 open("lecture.pdf", "w").close()
-                                
 
-            
             # download button to download the sample.pdf
             with open("lecture.pdf", "rb") as pdf_file:
                 PDFbyte = pdf_file.read()
@@ -405,7 +403,7 @@ if selected == "lecturer":
         if lecturer_file is not None:
             # Read the pdf file
             df = read_pdf(lecturer_file, pages="all",
-                          multiple_tables=True, encoding='utf-8', lattice=True)
+                          multiple_tables=True, encoding='latin-1', lattice=True)
             pages = len(df)
 
             # # line seperator
@@ -470,9 +468,9 @@ if selected == "lecturer":
                 "--------------------------------------------------------------")
 
             with col1:
-                #exept Nan values
+                # exept Nan values
                 teacher = st.selectbox("Select the Lecturer you want to see", list(
-                    complete_df["Teacher"].unique()),index=1)
+                    complete_df["Teacher"].unique()), index=1)
                 # select the rows with the selected teacher
                 teacher_df = complete_df[complete_df["Teacher"] == teacher]
                 # show the table
@@ -490,20 +488,20 @@ if selected == "lecturer":
                                    header_checkbox=True, rowMultiSelectWithClick=True, )
             options = gd.build()
             grid_table = AgGrid(
-                    teacher_df, gridOptions=options, update_mode=GridUpdateMode.VALUE_CHANGED, theme='alpine', columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
-            
-            #pass the table to the varible final_table even when edited
+                teacher_df, gridOptions=options, update_mode=GridUpdateMode.VALUE_CHANGED, theme='alpine', columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,)
+
+            # pass the table to the varible final_table even when edited
             edited_rows = grid_table["data"]
 
             # get the selected rows in a dataframe without the colomns _selectedRowNodeInfo
 
             selected_lecturer_df = pd.DataFrame(edited_rows)
-            
-            #To represent the days of the week and the time of day, you can use the x-axis to display the days of the week and the y-axis to display the time of day. To represent the lessons that are happening at specific times, you can use different colors or markers to indicate the different classes or subjects in a bar graph
+
+            # To represent the days of the week and the time of day, you can use the x-axis to display the days of the week and the y-axis to display the time of day. To represent the lessons that are happening at specific times, you can use different colors or markers to indicate the different classes or subjects in a bar graph
             # st.subheader("Your Lecture Timetable")
             import plotly.express as px
             fig = px.bar(teacher_df, x="Day", y="Lesson", color="Subject",
-                            orientation='v', )
+                         orientation='v', )
             fig.update_layout(
                 title="Your Lecture Timetable Graph",
                 xaxis_title="Day",
@@ -524,7 +522,7 @@ if selected == "lecturer":
             selected_lecturer_df.to_csv('lecturer.csv', index=False,)
             csv_lecturer = selected_lecturer_df.to_csv(index=False,)
             convert("lecturer.csv", "lecturer.pdf",
-            font=os.path.join(os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"))
+                    font=os.path.join(os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"))
 
             # download button to download the sample.pdf
             with open("lecturer.pdf", "rb") as pdf_file:
@@ -549,4 +547,3 @@ if selected == "lecturer":
                 st.session_state["lecturer_success"] = False
             else:
                 pass
-
