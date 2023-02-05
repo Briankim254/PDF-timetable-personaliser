@@ -185,7 +185,7 @@ if selected == "Lecture":
             else:
                 # convert the csv file to pdf
                 convert("lecture.csv", "lecture.pdf", font=os.path.join(
-                    os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"),size=7)
+                    os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"), size=7)
 
                 # plotly bar chart of the selected_subjects_df1 session state variable to show the day on the x axis and the lesson on the y axis and subject as the color
                 fig = px.bar(
@@ -350,7 +350,8 @@ if selected == "Exam":
 
             st.session_state["selected_exams_df1"].to_csv(
                 'exam.csv', index=False,)
-            convert("exam.csv", "exam.pdf")
+            convert("exam.csv", "exam.pdf", font=os.path.join(
+                    os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"), size=7)
 
             # download button to download the sample.pdf
             with open("exam.pdf", "rb") as pdf_file:
@@ -521,8 +522,8 @@ if selected == "lecturer":
             # dowmload the selected table
             selected_lecturer_df.to_csv('lecturer.csv', index=False,)
             csv_lecturer = selected_lecturer_df.to_csv(index=False,)
-            convert("lecturer.csv", "lecturer.pdf",
-                    font=os.path.join(os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"))
+            convert("lecturer.csv", "lecturer.pdf", font=os.path.join(
+                    os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"), size=7)
 
             # download button to download the sample.pdf
             with open("lecturer.pdf", "rb") as pdf_file:
