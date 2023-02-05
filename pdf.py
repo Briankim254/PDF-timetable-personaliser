@@ -169,7 +169,7 @@ if selected == "Lecture":
 
             # save the selected_exams_df1 to a new csv file and propose the download button to the user
             csv_lecture = st.session_state["selected_subjects_df1"].to_csv(
-                index=False)
+                index=False,)
 
             st.button("Clear", on_click=lecture_clear_selection)
 
@@ -185,7 +185,7 @@ if selected == "Lecture":
             else:
                 # convert the csv file to pdf
                 convert("lecture.csv", "lecture.pdf", font=os.path.join(
-                    os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"))
+                    os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"),)
 
                 # plotly bar chart of the selected_subjects_df1 session state variable to show the day on the x axis and the lesson on the y axis and subject as the color
                 fig = px.bar(
@@ -255,7 +255,7 @@ if selected == "Exam":
         if exam_file is not None:
             # Read the pdf file
             df = read_pdf(exam_file, pages="all", multiple_tables=True,
-                          lattice=True, encoding='latin-1')
+                          lattice=True, encoding='utf-8')
             pages = len(df)
             # line seperator
             st.write(
@@ -403,7 +403,7 @@ if selected == "lecturer":
         if lecturer_file is not None:
             # Read the pdf file
             df = read_pdf(lecturer_file, pages="all",
-                          multiple_tables=True, encoding='latin-1', lattice=True)
+                          multiple_tables=True, encoding='utf-8', lattice=True)
             pages = len(df)
 
             # # line seperator
