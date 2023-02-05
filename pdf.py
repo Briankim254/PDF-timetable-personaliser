@@ -523,6 +523,7 @@ if selected == "lecturer":
             selected_lecturer_df.to_csv('lecturer.csv', index=False,)
             csv_lecturer = selected_lecturer_df.to_csv(index=False,)
             convert("lecturer.csv", "lecturer.pdf", font=os.path.join(
+                    os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"),headerfont=os.path.join(
                     os.path.dirname(__file__), "Fonts", "DancingScript-VariableFont_wght.ttf"), size=7)
 
             # download button to download the sample.pdf
