@@ -195,7 +195,7 @@ if selected == "Lecture":
             #create a blank pdf file named lecture.pdf if it does not exist
             if not os.path.exists("lecture.pdf"):
                 open("lecture.pdf", "w").close()
-                
+                                
 
             
             # download button to download the sample.pdf
@@ -523,7 +523,8 @@ if selected == "lecturer":
             # dowmload the selected table
             selected_lecturer_df.to_csv('lecturer.csv', index=False,)
             csv_lecturer = selected_lecturer_df.to_csv(index=False,)
-            convert("lecturer.csv", "lecturer.pdf")
+            convert("lecturer.csv", "lecturer.pdf",
+            font=r"Fonts\NewsCycle-Regular.ttf")
 
             # download button to download the sample.pdf
             with open("lecturer.pdf", "rb") as pdf_file:
