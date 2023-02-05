@@ -524,7 +524,7 @@ if selected == "lecturer":
             selected_lecturer_df.to_csv('lecturer.csv', index=False,)
             csv_lecturer = selected_lecturer_df.to_csv(index=False,)
             convert("lecturer.csv", "lecturer.pdf",
-            font=r"Fonts\NewsCycle-Regular.ttf")
+            font=os.path.join(os.path.dirname(__file__), "Fonts", "NewsCycle-Regular.ttf"))
 
             # download button to download the sample.pdf
             with open("lecturer.pdf", "rb") as pdf_file:
