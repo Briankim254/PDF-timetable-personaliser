@@ -514,6 +514,7 @@ if selected == "lecturer":
                 )
             )
             st.plotly_chart(fig)
+            
 
             # line seperator
             st.write(
