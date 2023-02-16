@@ -8,6 +8,39 @@ from st_aggrid.grid_options_builder import GridOptionsBuilder
 import plotly.express as px
 import os
 import streamlit_authenticator as stauth
+from deta import Deta
+
+
+
+# initialize Deta with a Data Key
+deta = Deta(st.secrets["my_data_key"])
+db = deta.Base("users")
+
+def insert_user(username,email,name, password):
+    return db.put({"key": username, "name":name ,"email": email, "password": password})
+
+def get_user(username):
+    return db.get({"key": username})
+
+def get_user_by_name(name):
+    return db.get({"name": name})
+
+def get_user_by_email(email):
+    return db.get({"email": email})
+
+def get_user_by_password(password):
+    return db.get({"password": password})
+
+def get_all_users():
+    return db.fetch().items
+
+def delete_user(username):
+    return db.delete({"key": username})
+
+def update_user(username, email, password):
+    return db.update({"key": username}, {"email": email, "password": password})
+
+
 
 st.set_page_config(layout="wide", page_title="Timetable Personalizer", page_icon="random", initial_sidebar_state="expanded",
                    menu_items={
@@ -29,13 +62,36 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 with st.sidebar:
     selected = option_menu(
         menu_title="Timetable Personalizer",  # required
-        options=["Lecture", "Exam", "lecturer"],  # required
+        options=["Lecture", "Exam", "lecturer","Admin Panel"],  # required
         # icon name from https://fontawesome.com/icons?d=gallery&m=free
-        icons=["easel", "file-earmark-easel", "file-earmark-person"],
+        icons=["easel", "file-earmark-easel", "file-earmark-person","person-workspace"],
         menu_icon="tools ",  # optinal
         default_index=0,  # optinal
         # orientation = "horizontal"
     )
+    
+
+if selected == "Admin Panel":
+  
+    users = get_all_users()
+    usernames =[user["key"] for user in users]
+    names = [user["name"] for user in users]
+    emails = [user["email"] for user in users]
+    hashed_passwords = [user["password"] for user in users]
+
+    authenticator = stauth.Authenticate(names, usernames, hashed_passwords,
+    'some_cookie_name', 'some_signature_key', cookie_expiry_days=30)
+
+    name, authentication_status, username = authenticator.login('Login', 'main')
+
+    if st.session_state['authentication_status']:
+        st.write('Welcome *%s*' % (st.session_state['name']))
+        st.title('Some content')
+    elif st.session_state['authentication_status'] == False:
+        st.error('Username/password is incorrect')
+    elif st.session_state['authentication_status'] == None:
+        st.warning('Please enter your username and password')
+
 
 if selected == "Lecture":
     if "upload" not in st.session_state:
