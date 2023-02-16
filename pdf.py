@@ -77,10 +77,10 @@ if selected == "Admin Panel":
     usernames =[user["key"] for user in users]
     names = [user["name"] for user in users]
     emails = [user["email"] for user in users]
-    hashed_passwords = [user["password"] for user in users]
-
+    passwords = [user["password"] for user in users]
+    hashed_passwords = stauth.Hasher(passwords).generate()
     authenticator = stauth.Authenticate(names, usernames, hashed_passwords,
-    'some_cookie_name', 'some_signature_key', cookie_expiry_days=30)
+    'cookie', 'qwerpo', cookie_expiry_days=30)
 
     name, authentication_status, username = authenticator.login('Login', 'main')
 
