@@ -86,7 +86,7 @@ if selected == "Admin Panel":
 
     if st.session_state['authentication_status']:
         authenticator.logout('Logout', 'sidebar')
-        st.write('Welcome *%s*' % (st.session_state['name']))
+        st.subheader('Welcome *%s*' % (st.session_state['name']))
         # this is the menu in the admin panel
         admin = option_menu(
         menu_title= None,  # required
@@ -99,19 +99,45 @@ if selected == "Admin Panel":
     )
         if admin == "Register users":
             st.title("Register Users")
-            st.write("Enter the user details")
-            col01, col02, col03, col04 = st.columns([1, 1, 1, 1])
-            with col01:
-                name = st.text_input("Name", help="Enter the user's name")
-            with col02:
-                email = st.text_input("Email", help="Enter the user's email")
-            with col03:
-                username = st.text_input("Username", help="Enter the user's username")
-            with col04:
-                password = st.text_input("Password", help="Enter the user's password")
-            if st.button("Register"):
-                insert_user(username,email,name, password)
-                st.success("User registered successfully")
+            st.write("Please fill in the form below to register a new user")
+            def register():
+                # Get user inputs
+                col01, col02, col03, col04 = st.columns([1, 1, 1, 1])
+                with col01:
+                    username = st.text_input('Username')
+                with col02:
+                    email = st.text_input('Email')
+                with col03:
+                    name = st.text_input('Name')
+                with col04:
+                    password = st.text_input('Password', type='password')
+
+                # If form is submitted
+                if st.button('Register'):
+                    # Perform validation
+                    if not username:
+                        st.warning('Please enter a username')
+                        return
+                    if not email:
+                        st.warning('Please enter an email')
+                        return
+                    if not name:
+                        st.warning('Please enter your name')
+                        return
+                    if not password:
+                        st.warning('Please enter a password')
+                        return
+
+
+                    # Insert user data into the database
+                    
+                    insert_user(username, email, name, password)
+                    
+
+                    st.success('Registration successful')
+
+            # Display registration form
+            register()
 
             
         elif admin == "Reports":
