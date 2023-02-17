@@ -65,7 +65,7 @@ with st.sidebar:
         options=["Lecture", "Exam", "lecturer","Admin Panel"],  # required
         # icon name from https://fontawesome.com/icons?d=gallery&m=free
         icons=["easel", "file-earmark-easel", "file-earmark-person","person-workspace"],
-        menu_icon="tools ",  # optinal
+        menu_icon="clock-history ",  # optinal
         default_index=0,  # optinal
         # orientation = "horizontal"
     )
@@ -87,7 +87,36 @@ if selected == "Admin Panel":
     if st.session_state['authentication_status']:
         authenticator.logout('Logout', 'sidebar')
         st.write('Welcome *%s*' % (st.session_state['name']))
-        st.title('Some content')
+        # this is the menu in the admin panel
+        admin = option_menu(
+        menu_title= None,  # required
+        options=["Register users", "Reports"],  # required
+        # icon name from https://fontawesome.com/icons?d=gallery&m=free
+        icons=["clipboard-plus", "flag"],
+        # menu_icon="tools ",  # optinal
+        default_index=0,  # optinal
+        orientation = "horizontal"
+    )
+        if admin == "Register users":
+            st.title("Register Users")
+            st.write("Enter the user details")
+            col01, col02, col03, col04 = st.columns([1, 1, 1, 1])
+            with col01:
+                name = st.text_input("Name", help="Enter the user's name")
+            with col02:
+                email = st.text_input("Email", help="Enter the user's email")
+            with col03:
+                username = st.text_input("Username", help="Enter the user's username")
+            with col04:
+                password = st.text_input("Password", help="Enter the user's password")
+            if st.button("Register"):
+                insert_user(username,email,name, password)
+                st.success("User registered successfully")
+
+            
+        elif admin == "Reports":
+            st.title("Reports")
+    
     elif st.session_state['authentication_status'] == False:
         st.error('Username/password is incorrect')
     elif st.session_state['authentication_status'] == None:
