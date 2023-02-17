@@ -85,6 +85,7 @@ if selected == "Admin Panel":
     name, authentication_status, username = authenticator.login('Login', 'main')
 
     if st.session_state['authentication_status']:
+        authenticator.logout('Logout', 'sidebar')
         st.write('Welcome *%s*' % (st.session_state['name']))
         st.title('Some content')
     elif st.session_state['authentication_status'] == False:
