@@ -108,7 +108,7 @@ if selected == "Admin Panel":
         # this is the menu in the admin panel
         admin = option_menu(
         menu_title= None,  # required
-        options=["Reports", "Register users"],  # required
+        options=["Reports", "Users"],  # required
         # icon name from https://fontawesome.com/icons?d=gallery&m=free
         icons=["flag", "clipboard-plus"],
         # menu_icon="tools ",  # optinal
