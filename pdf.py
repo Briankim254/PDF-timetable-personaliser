@@ -119,39 +119,43 @@ if selected == "Admin Panel":
             st.title("Register Users")
             st.write("Please fill in the form below to register a new user")
             def register():
-                # Get user inputs
-                col01, col02, col03, col04, col05 = st.columns([1, 1, 1, 1, 1])
-                with col01:
-                    username = st.text_input('Username')
-                with col02:
-                    email = st.text_input('Email')
-                with col03:
-                    name = st.text_input('Name')
-                with col04:
-                    password = st.text_input('Password', type='password')
-                with col05:
-                    rank = st.selectbox("user rank",["Representative","Lecturer","Adminstration"])
-                # If form is submitted
-                if st.button('Register'):
-                    # Perform validation
-                    if not username:
-                        st.warning('Please enter a username')
-                        return
-                    if not email:
-                        st.warning('Please enter an email')
-                        return
-                    if not name:
-                        st.warning('Please enter your name')
-                        return
-                    if not password:
-                        st.warning('Please enter a password')
-                        return
-
-
-                    # Insert user data into the database
+                # Create a form
+                with st.form(key='register_form'):
+                    # Get user inputs
+                    col01, col02, col03, col04, col05 = st.columns([1, 1, 1, 1, 1])
+                    with col01:
+                        username = st.text_input('Username')
+                    with col02:
+                        email = st.text_input('Email')
+                    with col03:
+                        name = st.text_input('Name')
+                    with col04:
+                        password = st.text_input('Password', type='password')
+                    with col05:
+                        rank = st.selectbox("user rank",["Representative","Lecturer","Adminstration"])
+                    # If form is submitted
+                    if st.form_submit_button('Register'):
+                        # Perform validation
+                        if not username:
+                            st.warning('Please enter a username')
+                            return
+                        if not email:
+                            st.warning('Please enter an email')
+                            return
+                        if not name:
+                            st.warning('Please enter your name')
+                            return
+                        if not password:
+                            st.warning('Please enter a password')
+                            return
+                        if not rank:
+                            st.warning('Please enter your rank')
+                            return
+                        else:
+                            # Insert user data into the database
+                            insert_user(username, email, name, password,rank)
+                            st.success('Registration successful')
                     
-                    insert_user(username, email, name, password,rank)
-                    st.success('Registration successful')
 
             # Display registration form
             register()
@@ -160,7 +164,20 @@ if selected == "Admin Panel":
         elif admin == "Reports":
             st.title("Reports")
             st.write("Please find below the reports made by the users")
-            
+            #display a grid formart all the reports
+            reports = get_reports()
+            usernames =[report["username"] for report in reports]
+            titles = [report["title"] for report in reports]
+            comments = [report["comment"] for report in reports]
+            df = pd.DataFrame(list(zip(usernames, titles, comments)), columns =['User', 'Title', 'Comment'])
+            st.dataframe(df, use_container_width=True)
+            #delete a report
+            st.write("Please select a report to delete")
+            comment = st.selectbox("Comment",comments)  
+            if st.button('Delete'):
+                delete_report(comment)
+                st.success('Report deleted successfully')
+
     
     elif st.session_state['authentication_status'] == False:
         st.error('Username/password is incorrect')
