@@ -19,7 +19,7 @@ st.set_page_config(layout="wide", page_title="Timetable Personalizer", page_icon
                    },)
 
 
-@ st.cache_resource
+@ st.cache
 def database_connection():
     # initialize Deta with a Data Key
     deta = Deta(st.secrets["my_data_key"])
