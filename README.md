@@ -1,4 +1,4 @@
-# timetable personalizer
+# Timetable personalizer
 
 link to the deployed application - https://timetable.streamlit.app/
 
