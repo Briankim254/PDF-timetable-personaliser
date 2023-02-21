@@ -1,5 +1,7 @@
 # timetable personalizer
 
+link to the deployed application - https://timetable.streamlit.app/
+
 this demo software is aimed for kabarak university students and lecturers where, you can take the master timetable either the exam or class timetable and make a personalized on baed on the original
 
 
