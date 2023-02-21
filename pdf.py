@@ -11,13 +11,26 @@ import streamlit_authenticator as stauth
 from deta import Deta
 
 
+st.set_page_config(layout="wide", page_title="Timetable Personalizer", page_icon="random", initial_sidebar_state="expanded",
+                   menu_items={
+                       'Get Help': 'mailto:bkimutai@kabarak.ac.ke',
+                       'Report a bug': "mailto:bkimutai@kabarak.ac.ke",
+                       'About': "# This is baan *extremely* cool app!"
+                   },)
 
-# initialize Deta with a Data Key
-deta = Deta(st.secrets["my_data_key"])
-db = deta.Base("users")
 
-def insert_user(username,email,name, password):
-    return db.put({"key": username, "name":name ,"email": email, "password": password})
+@ st.cache_resource
+def database_connection():
+    # initialize Deta with a Data Key
+    deta = Deta(st.secrets["my_data_key"])
+    db = deta.Base("users")
+    db1 = deta.Base("reports")
+    return db, db1
+
+db, db1 = database_connection()
+
+def insert_user(username,email,name, password, rank):
+    return db.put({"key": username, "name":name ,"email": email, "password": password, "rank": rank})
 
 def get_user(username):
     return db.get({"key": username})
@@ -31,6 +44,9 @@ def get_user_by_email(email):
 def get_user_by_password(password):
     return db.get({"password": password})
 
+def get_user_by_rank(rank):
+    return db.get({"rank": rank})
+
 def get_all_users():
     return db.fetch().items
 
@@ -40,14 +56,16 @@ def delete_user(username):
 def update_user(username, email, password):
     return db.update({"key": username}, {"email": email, "password": password})
 
+def make_report(username, title, comment):
+    return db1.put({"username": username, "title":title ,"comment": comment})
+
+def get_reports():
+    return db1.fetch().items
+
+def delete_report(comment):
+    return db1.delete({"comment": comment})
 
 
-st.set_page_config(layout="wide", page_title="Timetable Personalizer", page_icon="random", initial_sidebar_state="expanded",
-                   menu_items={
-                       'Get Help': 'mailto:bkimutai@kabarak.ac.ke',
-                       'Report a bug': "mailto:bkimutai@kabarak.ac.ke",
-                       'About': "# This is baan *extremely* cool app!"
-                   },)
 
 # remove made with streamlit footer
 hide_streamlit_style = """
@@ -102,7 +120,7 @@ if selected == "Admin Panel":
             st.write("Please fill in the form below to register a new user")
             def register():
                 # Get user inputs
-                col01, col02, col03, col04 = st.columns([1, 1, 1, 1])
+                col01, col02, col03, col04, col05 = st.columns([1, 1, 1, 1, 1])
                 with col01:
                     username = st.text_input('Username')
                 with col02:
@@ -111,7 +129,8 @@ if selected == "Admin Panel":
                     name = st.text_input('Name')
                 with col04:
                     password = st.text_input('Password', type='password')
-
+                with col05:
+                    rank = st.selectbox("user rank",["Representative","Lecturer","Adminstration"])
                 # If form is submitted
                 if st.button('Register'):
                     # Perform validation
@@ -131,9 +150,7 @@ if selected == "Admin Panel":
 
                     # Insert user data into the database
                     
-                    insert_user(username, email, name, password)
-                    
-
+                    insert_user(username, email, name, password,rank)
                     st.success('Registration successful')
 
             # Display registration form
@@ -142,6 +159,8 @@ if selected == "Admin Panel":
             
         elif admin == "Reports":
             st.title("Reports")
+            st.write("Please find below the reports made by the users")
+            
     
     elif st.session_state['authentication_status'] == False:
         st.error('Username/password is incorrect')
@@ -160,6 +179,9 @@ if selected == "Lecture":
     if "lecture_success" not in st.session_state:
         st.session_state["lecture_success"] = False
 
+    if "report_lecture" not in st.session_state:
+        st.session_state["report_lecture"] = False
+
     def lecture_change_state():
         st.session_state["upload"] = "done"
 
@@ -168,6 +190,9 @@ if selected == "Lecture":
 
     def lecture_success():
         st.session_state["lecture_success"] = True
+
+    def lecture_report():
+        st.session_state["report_lecture"] = True
 
     st.title("Lecture Timetable Personalizer :date:")
 
@@ -182,7 +207,7 @@ if selected == "Lecture":
         # Read the pdf file
         if lecture_file is not None:
             df = read_pdf(lecture_file,  pages="all",
-                          multiple_tables=True, encoding='utf-8', lattice=True)
+                          multiple_tables=True, encoding='latin-1', lattice=True)
             pages = len(df)
             # line seperator
             st.write(
@@ -283,7 +308,7 @@ if selected == "Lecture":
             csv_lecture = st.session_state["selected_subjects_df1"].to_csv(
                 index=False,)
 
-            st.button("Clear", on_click=lecture_clear_selection)
+            st.button("Clear selection", on_click=lecture_clear_selection)
 
             # line seperator
             st.write(
@@ -312,26 +337,66 @@ if selected == "Lecture":
             with open("lecture.pdf", "rb") as pdf_file:
                 PDFbyte = pdf_file.read()
 
-            st.download_button(label="Export pdf",
-                               data=PDFbyte,
-                               file_name="Personalized lecture timetable.pdf",
-                               mime='application/octet-stream',
-                               on_click=lecture_success
-                               )
-
-            st.download_button(
-                label="Export CSV",
-                data=csv_lecture,
-                file_name='Personalized lecture timetable.csv',
-                mime='text/csv',
-                on_click=lecture_success
-            )
+            col3, col4, col5 = st.columns([1, 1, 1])
+            with col3:
+                st.download_button(label="Export pdf",
+                                data=PDFbyte,
+                                file_name="Personalized lecture timetable.pdf",
+                                mime='application/octet-stream',
+                                on_click=lecture_success
+                                )
+            with col4:
+                st.download_button(
+                    label="Export CSV",
+                    data=csv_lecture,
+                    file_name='Personalized lecture timetable.csv',
+                    mime='text/csv',
+                    on_click=lecture_success
+                )
 
             if st.session_state["lecture_success"]:
                 st.success("succesfully downloaded summarzied table")
                 st.session_state["lecture_success"] = False
-            else:
-                pass
+            
+            with col5:
+                #add abutton to execute the report block below
+                st.button("Report", on_click= lecture_report)
+
+            if st.session_state["report_lecture"] :
+                users = get_all_users()
+                usernames =[user["key"] for user in users]
+                names = [user["name"] for user in users]
+                emails = [user["email"] for user in users]
+                passwords = [user["password"] for user in users]
+                hashed_passwords = stauth.Hasher(passwords).generate()
+                authenticator = stauth.Authenticate(names, usernames, hashed_passwords,
+                'cookie', 'qwerpo', cookie_expiry_days=30)
+
+                name, authentication_status, username = authenticator.login('Login', 'main')
+                if st.session_state['authentication_status']:
+                    st.subheader('Welcome *%s*' % (st.session_state['name']))
+                    authenticator.logout('Logout', 'sidebar')
+                    #report block
+                    with st.form(key="reports"):
+                        col6, col9 = st.columns([1, 1])
+                        with col6:
+                            st.subheader("Report")
+                            title = st.text_input("subject of concern:", value="")
+                        with col9:
+                            st.subheader("Report")
+                            comment = st.text_area("comment", value="")
+                        submittion = st.form_submit_button("Submit")
+                        if submittion:
+                            if title == "" or comment == "":
+                                st.warning("Please fill in all the fields")
+                            else:
+                                make_report(st.session_state['name'],title, comment)
+                                st.success("Thank you for your feedback")
+                        
+                elif st.session_state['authentication_status'] == False:
+                    st.error('Username/password is incorrect')
+                elif st.session_state['authentication_status'] == None:
+                    st.warning('Please enter your username and password')                    
 
 
 if selected == "Exam":
