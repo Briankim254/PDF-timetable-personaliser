@@ -63,7 +63,7 @@ def get_reports():
     return db1.fetch().items
 
 def delete_report(comment):
-    return db1.delete({"comment": comment})
+    db1.delete({"comment": comment})
 
 
 
@@ -115,7 +115,7 @@ if selected == "Admin Panel":
         default_index=0,  # optinal
         orientation = "horizontal"
     )
-        if admin == "Register users":
+        if admin == "Users":
             st.title("Register Users")
             st.write("Please fill in the form below to register a new user")
             def register():
@@ -172,11 +172,11 @@ if selected == "Admin Panel":
             df = pd.DataFrame(list(zip(usernames, titles, comments)), columns =['User', 'Title', 'Comment'])
             st.dataframe(df, use_container_width=True)
             #delete a report
-            st.write("Please select a report to delete")
-            comment = st.selectbox("Comment",comments)  
-            if st.button('Delete'):
-                delete_report(comment)
-                st.success('Report deleted successfully')
+            if st.checkbox("Delete a report"):
+                comment = st.selectbox("Comment",comments)  
+                if st.button('Delete Confirmation'):
+                    delete_report(comment)
+                    st.success('Report deleted successfully')
 
     
     elif st.session_state['authentication_status'] == False:
