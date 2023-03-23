@@ -19,7 +19,6 @@ st.set_page_config(layout="wide", page_title="Timetable Personalizer", page_icon
                    },)
 
 
-
 def database_connection():
     # initialize Deta with a Data Key
     deta = Deta(st.secrets["my_data_key"])
@@ -27,44 +26,58 @@ def database_connection():
     db1 = deta.Base("reports")
     return db, db1
 
+
 db, db1 = database_connection()
 
-def insert_user(username,email,name, password, rank):
-    return db.put({"key": username, "name":name ,"email": email, "password": password, "rank": rank})
+
+def insert_user(username, email, name, password, rank):
+    return db.put({"key": username, "name": name, "email": email, "password": password, "rank": rank})
+
 
 def get_user(username):
     return db.get({"key": username})
 
+
 def get_user_by_name(name):
     return db.get({"name": name})
+
 
 def get_user_by_email(email):
     return db.get({"email": email})
 
+
 def get_user_by_password(password):
     return db.get({"password": password})
+
 
 def get_user_by_rank(rank):
     return db.get({"rank": rank})
 
+
 def get_all_users():
     return db.fetch().items
+
 
 def delete_user(username):
     return db.delete({"key": username})
 
+
 def update_user(username, email, password):
     return db.update({"key": username}, {"email": email, "password": password})
 
+
 def make_report(username, title, comment):
-    return db1.put({"username": username, "title":title ,"comment": comment})
+    return db1.put({"username": username, "title": title, "comment": comment})
+
 
 def get_reports():
     return db1.fetch().items
 
-def delete_report(comment):
-    db1.delete({"comment": comment})
 
+def delete_report(comment):
+    # get the key where matching the comment
+    key = db1.fetch({"comment": comment}).items[0]["key"]
+    db1.delete({"key":key})
 
 
 # remove made with streamlit footer
@@ -80,49 +93,53 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 with st.sidebar:
     selected = option_menu(
         menu_title="Timetable Personalizer",  # required
-        options=["Lecture", "Exam", "lecturer","Admin Panel"],  # required
+        options=["Lecture", "Exam", "lecturer", "Admin Panel"],  # required
         # icon name from https://fontawesome.com/icons?d=gallery&m=free
-        icons=["easel", "file-earmark-easel", "file-earmark-person","person-workspace"],
+        icons=["easel", "file-earmark-easel",
+               "file-earmark-person", "person-workspace"],
         menu_icon="clock-history ",  # optinal
         default_index=0,  # optinal
         # orientation = "horizontal"
     )
-    
+
 
 if selected == "Admin Panel":
-  
+
     users = get_all_users()
-    usernames =[user["key"] for user in users]
+    usernames = [user["key"] for user in users]
     names = [user["name"] for user in users]
     emails = [user["email"] for user in users]
     passwords = [user["password"] for user in users]
     hashed_passwords = stauth.Hasher(passwords).generate()
     authenticator = stauth.Authenticate(names, usernames, hashed_passwords,
-    'cookie', 'qwerpo', cookie_expiry_days=30)
+                                        'cookie', 'qwerpo', cookie_expiry_days=30)
 
-    name, authentication_status, username = authenticator.login('Login', 'main')
+    name, authentication_status, username = authenticator.login(
+        'Login', 'main')
 
     if st.session_state['authentication_status']:
         authenticator.logout('Logout', 'sidebar')
         st.subheader('Welcome *%s*' % (st.session_state['name']))
         # this is the menu in the admin panel
         admin = option_menu(
-        menu_title= None,  # required
-        options=["Reports", "Users"],  # required
-        # icon name from https://fontawesome.com/icons?d=gallery&m=free
-        icons=["flag", "clipboard-plus"],
-        # menu_icon="tools ",  # optinal
-        default_index=0,  # optinal
-        orientation = "horizontal"
-    )
+            menu_title=None,  # required
+            options=["Reports", "Users"],  # required
+            # icon name from https://fontawesome.com/icons?d=gallery&m=free
+            icons=["flag", "clipboard-plus"],
+            # menu_icon="tools ",  # optinal
+            default_index=0,  # optinal
+            orientation="horizontal"
+        )
         if admin == "Users":
             st.title("Register Users")
             st.write("Please fill in the form below to register a new user")
+
             def register():
                 # Create a form
                 with st.form(key='register_form'):
                     # Get user inputs
-                    col01, col02, col03, col04, col05 = st.columns([1, 1, 1, 1, 1])
+                    col01, col02, col03, col04, col05 = st.columns(
+                        [1, 1, 1, 1, 1])
                     with col01:
                         username = st.text_input('Username')
                     with col02:
@@ -132,7 +149,8 @@ if selected == "Admin Panel":
                     with col04:
                         password = st.text_input('Password', type='password')
                     with col05:
-                        rank = st.selectbox("user rank",["Representative","Lecturer","Adminstration"])
+                        rank = st.selectbox(
+                            "user rank", ["Representative", "Lecturer", "Adminstration"])
                     # If form is submitted
                     if st.form_submit_button('Register'):
                         # Perform validation
@@ -153,32 +171,30 @@ if selected == "Admin Panel":
                             return
                         else:
                             # Insert user data into the database
-                            insert_user(username, email, name, password,rank)
+                            insert_user(username, email, name, password, rank)
                             st.success('Registration successful')
-                    
 
             # Display registration form
             register()
 
-            
         elif admin == "Reports":
             st.title("Reports")
             st.write("Please find below the reports made by the users")
-            #display a grid formart all the reports
+            # display a grid formart all the reports
             reports = get_reports()
-            usernames =[report["username"] for report in reports]
+            usernames = [report["username"] for report in reports]
             titles = [report["title"] for report in reports]
             comments = [report["comment"] for report in reports]
-            df = pd.DataFrame(list(zip(usernames, titles, comments)), columns =['User', 'Title', 'Comment'])
+            df = pd.DataFrame(list(zip(usernames, titles, comments)), columns=[
+                              'User', 'Title', 'Comment'])
             st.dataframe(df, use_container_width=True)
-            #delete a report
+            # delete a report
             if st.checkbox("Delete a report"):
-                comment = st.selectbox("Comment",comments)  
+                comment = st.selectbox("Comment", comments)
                 if st.button('Delete Confirmation'):
                     delete_report(comment)
                     st.success('Report deleted successfully')
 
-    
     elif st.session_state['authentication_status'] == False:
         st.error('Username/password is incorrect')
     elif st.session_state['authentication_status'] == None:
@@ -357,11 +373,11 @@ if selected == "Lecture":
             col3, col4, col5 = st.columns([1, 1, 1])
             with col3:
                 st.download_button(label="Export pdf",
-                                data=PDFbyte,
-                                file_name="Personalized lecture timetable.pdf",
-                                mime='application/octet-stream',
-                                on_click=lecture_success
-                                )
+                                   data=PDFbyte,
+                                   file_name="Personalized lecture timetable.pdf",
+                                   mime='application/octet-stream',
+                                   on_click=lecture_success
+                                   )
             with col4:
                 st.download_button(
                     label="Export CSV",
@@ -374,31 +390,33 @@ if selected == "Lecture":
             if st.session_state["lecture_success"]:
                 st.success("succesfully downloaded summarzied table")
                 st.session_state["lecture_success"] = False
-            
-            with col5:
-                #add abutton to execute the report block below
-                st.button("Report", on_click= lecture_report)
 
-            if st.session_state["report_lecture"] :
+            with col5:
+                # add abutton to execute the report block below
+                st.button("Report", on_click=lecture_report)
+
+            if st.session_state["report_lecture"]:
                 users = get_all_users()
-                usernames =[user["key"] for user in users]
+                usernames = [user["key"] for user in users]
                 names = [user["name"] for user in users]
                 emails = [user["email"] for user in users]
                 passwords = [user["password"] for user in users]
                 hashed_passwords = stauth.Hasher(passwords).generate()
                 authenticator = stauth.Authenticate(names, usernames, hashed_passwords,
-                'cookie', 'qwerpo', cookie_expiry_days=30)
+                                                    'cookie', 'qwerpo', cookie_expiry_days=30)
 
-                name, authentication_status, username = authenticator.login('Login', 'main')
+                name, authentication_status, username = authenticator.login(
+                    'Login', 'main')
                 if st.session_state['authentication_status']:
                     st.subheader('Welcome *%s*' % (st.session_state['name']))
                     authenticator.logout('Logout', 'sidebar')
-                    #report block
+                    # report block
                     with st.form(key="reports"):
                         col6, col9 = st.columns([1, 1])
                         with col6:
                             st.subheader("Report")
-                            title = st.text_input("subject of concern:", value="")
+                            title = st.text_input(
+                                "subject of concern:", value="")
                         with col9:
                             st.subheader("Report")
                             comment = st.text_area("comment", value="")
@@ -407,13 +425,14 @@ if selected == "Lecture":
                             if title == "" or comment == "":
                                 st.warning("Please fill in all the fields")
                             else:
-                                make_report(st.session_state['name'],title, comment)
+                                make_report(
+                                    st.session_state['name'], title, comment)
                                 st.success("Thank you for your feedback")
-                        
+
                 elif st.session_state['authentication_status'] == False:
                     st.error('Username/password is incorrect')
                 elif st.session_state['authentication_status'] == None:
-                    st.warning('Please enter your username and password')                    
+                    st.warning('Please enter your username and password')
 
 
 if selected == "Exam":
@@ -598,7 +617,7 @@ if selected == "lecturer":
         if lecturer_file is not None:
             # Read the pdf file
             df = read_pdf(lecturer_file, pages="all",
-                          multiple_tables=True, encoding='utf-8', lattice=True)
+                          multiple_tables=True, encoding='latin-1', lattice=True)
             pages = len(df)
 
             # # line seperator
@@ -708,7 +727,6 @@ if selected == "lecturer":
                 )
             )
             st.plotly_chart(fig)
-            
 
             # line seperator
             st.write(
